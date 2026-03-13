@@ -80,6 +80,87 @@ KEYWORDS_EXTRA = [
 ]
 
 # ════════════════════════════════════════════════════════
+#  AR 眼镜优先关键字（分三大类，命中越多分越高）
+#  参考：工艺类 / 设计类 / 颠覆性新方案类
+# ════════════════════════════════════════════════════════
+
+# 每个 tuple = (关键字, 优先分值)
+AR_PRIORITY_KEYWORDS: list[tuple[str, int]] = [
+
+    # ── 工艺类（制造工艺，高优先）────────────────────
+    ("SRG",                        10),
+    ("surface relief grating",     10),
+    ("表面浮雕光栅",                 10),
+    ("smartcut",                   10),
+    ("smartcut bonding",           10),
+    ("tflnonsi",                   10),
+    ("d2w reconstitution",         10),
+    ("reconstitution wafer",       10),
+    ("SiC microchannel",            8),
+    ("SiC 微通道",                   8),
+    ("散热基板",                      8),
+    ("imec",                        7),
+
+    # ── 设计类（光学设计，高优先）────────────────────
+    ("SRG WG",                     10),
+    ("see-through artifact",       10),
+    ("grating conspicuity",        10),
+    ("2D grating",                 10),
+    ("large fov",                   9),
+    ("large field of view",         9),
+    ("doe",                         8),
+    ("moe",                         8),
+    ("可见光 metalens",               9),
+    ("visible metalens",            9),
+    ("achromatic",                  8),
+    ("消色差",                        8),
+    ("fov expansion",               9),
+    ("视场扩展",                       9),
+    ("矢量仿真",                       8),
+
+    # ── 颠覆性新方案类（最高优先）──────────────────
+    ("metasurface based SRG",      12),
+    ("超表面 SRG",                   12),
+    ("alternative AR NED",         12),
+    ("Maxwellian",                  11),
+    ("maxwellian display",          11),
+    ("maxwellian view",             11),
+    ("带景深",                        11),
+    ("depth of field",              10),
+    ("creal",                       10),
+    ("swave",                       10),
+    ("vividQ",                      10),
+    ("non-waveguide",               10),
+    ("non WG",                      10),
+    ("retinal projection",          10),
+    ("视网膜投影",                     10),
+    ("lightfield",                   9),
+    ("light field display",          9),
+    ("光场显示",                       9),
+
+    # ── AR 眼镜核心光学组件（通用高优先）────────────
+    ("waveguide combiner",          9),
+    ("waveguide display",           9),
+    ("AR waveguide",                9),
+    ("AR glasses",                  9),
+    ("AR headset",                  9),
+    ("near-eye display",            9),
+    ("NED",                         9),
+    ("near eye",                    8),
+    ("光波导显示",                     9),
+    ("近眼显示",                       9),
+    ("眼镜光学",                       9),
+    ("combiner",                    8),
+    ("耦合器",                         8),
+    ("in-coupler",                   8),
+    ("out-coupler",                  8),
+    ("exit pupil",                   8),
+    ("出瞳",                          8),
+    ("pupil expansion",              8),
+    ("瞳孔扩展",                       8),
+]
+
+# ════════════════════════════════════════════════════════
 #  ③ RSS 源
 # ════════════════════════════════════════════════════════
 
@@ -148,11 +229,17 @@ def save_history(history: dict) -> None:
 def strip_html(text: str) -> str:
     return re.sub(r"<[^>]+>", "", text or "").strip()
 
-def keyword_match(text: str) -> tuple[bool, list[str]]:
+def keyword_match(text: str) -> tuple[bool, list[str], int]:
+    """
+    返回 (是否命中MUST, 命中的EXTRA词列表, AR优先分值)
+    优先分值越高 → 排序越靠前
+    """
     lower = text.lower()
     hit   = any(k.lower() in lower for k in KEYWORDS_MUST)
     extra = [k for k in KEYWORDS_EXTRA if k.lower() in lower]
-    return hit, extra
+    # 累加所有命中的 AR 优先关键字分值
+    priority = sum(score for kw, score in AR_PRIORITY_KEYWORDS if kw.lower() in lower)
+    return hit, extra, priority
 
 def parse_pub(entry) -> datetime | None:
     for attr in ("published_parsed", "updated_parsed"):
@@ -191,7 +278,7 @@ def fetch_candidates(src_type: str, history: dict) -> list[dict]:
             title   = strip_html(entry.get("title", "无标题"))
             summary = strip_html(entry.get("summary", ""))[:300]
 
-            hit_must, hit_extra = keyword_match(f"{title} {summary}")
+            hit_must, hit_extra, priority = keyword_match(f"{title} {summary}")
             if not hit_must:
                 continue
 
@@ -210,11 +297,16 @@ def fetch_candidates(src_type: str, history: dict) -> list[dict]:
                               if pub else "—"),
                 "year":      year,
                 "hit_extra": hit_extra,
+                "priority":  priority,
                 "zh_desc":   "",   # 由 AI 填充
             })
 
+    # 先按优先分值（高→低），再按发布时间（新→旧）
     candidates.sort(
-        key=lambda a: a["pub"] or datetime.min.replace(tzinfo=timezone.utc),
+        key=lambda a: (
+            a["priority"],
+            a["pub"].timestamp() if a["pub"] else 0,
+        ),
         reverse=True,
     )
     return candidates
@@ -489,7 +581,8 @@ def main():
     print(f"\n{'─'*54}")
     for a in all_to_send:
         tag = "文献" if a["src_type"] == "paper" else "新闻"
-        print(f"  [{tag}] [{a['year']}] {a['title'][:50]}")
+        pri = f"优先分:{a['priority']}" if a["priority"] > 0 else "通用"
+        print(f"  [{tag}][{pri}] [{a['year']}] {a['title'][:48]}")
         print(f"         → {a['zh_desc'][:50]}")
     print(f"{'─'*54}")
 
