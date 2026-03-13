@@ -44,8 +44,9 @@ HISTORY_KEEP_DAYS = 60
 # ════════════════════════════════════════════════════════
 
 KEYWORDS_MUST = [
+    # ── 学术文献用（可以稍宽）────────────────────────
     "optical", "optics", "photonics",
-    "AR", "augmented reality",
+    "augmented reality",
     "waveguide", "光波导", "波导",
     "eyepiece", "目镜",
     # TFLN 薄膜铌酸锂
@@ -54,17 +55,47 @@ KEYWORDS_MUST = [
     "铌酸锂", "薄膜铌酸锂", "电光调制",
     "diffractive", "holographic", "hologram", "HOE",
     "metasurface", "metalens", "超表面", "元透镜",
-    "grating", "光栅",
+    "surface relief grating", "SRG",
+    "grating coupler", "diffraction grating", "光栅",
     "pancake lens", "birdbath",
-    "light engine", "micro display",
-    "microLED", "micro-LED", "OLED", "LCoS", "DLP",
-    "mixed reality", "MR", "XR",
-    "smart glasses", "head-mounted", "HMD",
+    "light engine", "micro display", "near-eye display",
+    "microLED", "micro-LED", "LCoS", "DLP",
+    "mixed reality", "smart glasses", "head-mounted display",
+    "HoloLens", "Magic Leap", "Apple Vision Pro",
+    "Meta Quest", "Ray-Ban Meta", "XREAL", "Rokid",
+    "增强现实", "混合现实", "衍射", "全息",
+    "智能眼镜", "头显", "近眼显示",
+]
+
+# ── 新闻专用严格关键字（必须含其中之一才推送）──────────
+#    比学术词表更精准，避免误触电池/AI/娱乐等泛科技内容
+KEYWORDS_NEWS_STRICT = [
+    # AR / 智能眼镜 产品与公司
+    "augmented reality", "AR glasses", "AR headset", "AR display",
+    "smart glasses", "mixed reality glasses",
     "Apple Vision", "Meta Quest", "HoloLens", "Magic Leap",
-    "Ray-Ban Meta", "XREAL", "Rokid",
-    "增强现实", "混合现实", "光学", "衍射", "全息",
-    "智能眼镜", "头显",
-    "VR", "virtual reality",
+    "Ray-Ban Meta", "XREAL", "Rokid", "TCL RayNeo",
+    "增强现实眼镜", "智能眼镜", "头显", "近眼显示",
+    # 波导 / 光学组件
+    "waveguide", "optical waveguide", "diffractive waveguide",
+    "holographic waveguide", "光波导", "波导显示",
+    "eyepiece", "目镜", "光学模组",
+    "metasurface lens", "metalens", "超表面透镜",
+    "pancake lens", "pancake optics", "birdbath optics",
+    "diffractive optical", "holographic optical",
+    "surface relief grating", "SRG waveguide",
+    # 显示器件（必须与 AR/显示强相关，不含泛用 OLED）
+    "micro display", "microLED display", "LCoS display",
+    "light engine", "near-eye", "microdisplay",
+    "retinal display", "retinal projection",
+    # TFLN / 光子芯片
+    "TFLN", "thin-film lithium niobate", "lithium niobate modulator",
+    "electro-optic modulator", "photonic chip", "铌酸锂",
+    # 行业关键词
+    "AR industry", "AR market", "AR optics",
+    "wearable display", "wearable optics",
+    "optical see-through", "see-through display",
+    "AR NED", "NED display",
 ]
 
 KEYWORDS_EXTRA = [
@@ -75,7 +106,6 @@ KEYWORDS_EXTRA = [
     "diffraction efficiency",
     "ray tracing", "光线追迹",
     "tolerance", "manufacturing",
-    "AI", "neural", "deep learning",
     "simulation",
 ]
 
@@ -229,15 +259,18 @@ def save_history(history: dict) -> None:
 def strip_html(text: str) -> str:
     return re.sub(r"<[^>]+>", "", text or "").strip()
 
-def keyword_match(text: str) -> tuple[bool, list[str], int]:
+def keyword_match(text: str, src_type: str) -> tuple[bool, list[str], int]:
     """
-    返回 (是否命中MUST, 命中的EXTRA词列表, AR优先分值)
-    优先分值越高 → 排序越靠前
+    返回 (是否命中, 命中的EXTRA词列表, AR优先分值)
+
+    · paper → 用 KEYWORDS_MUST（较宽，覆盖学术光学领域）
+    · news  → 用 KEYWORDS_NEWS_STRICT（严格，仅 AR/波导/光学组件）
+              避免电池、AI政策、娱乐等泛科技内容混入
     """
-    lower = text.lower()
-    hit   = any(k.lower() in lower for k in KEYWORDS_MUST)
-    extra = [k for k in KEYWORDS_EXTRA if k.lower() in lower]
-    # 累加所有命中的 AR 优先关键字分值
+    lower    = text.lower()
+    kw_list  = KEYWORDS_MUST if src_type == "paper" else KEYWORDS_NEWS_STRICT
+    hit      = any(k.lower() in lower for k in kw_list)
+    extra    = [k for k in KEYWORDS_EXTRA if k.lower() in lower]
     priority = sum(score for kw, score in AR_PRIORITY_KEYWORDS if kw.lower() in lower)
     return hit, extra, priority
 
@@ -278,7 +311,7 @@ def fetch_candidates(src_type: str, history: dict) -> list[dict]:
             title   = strip_html(entry.get("title", "无标题"))
             summary = strip_html(entry.get("summary", ""))[:300]
 
-            hit_must, hit_extra, priority = keyword_match(f"{title} {summary}")
+            hit_must, hit_extra, priority = keyword_match(f"{title} {summary}", src_type)
             if not hit_must:
                 continue
 
