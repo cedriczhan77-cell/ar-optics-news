@@ -263,7 +263,7 @@ def ai_fill_articles(articles: list[dict]) -> None:
     )
     prompt = (
         "你是一名光学/AR领域的技术编辑。\n"
-        "请为以下每篇文章生成一句简洁的中文描述（15~30字，直接说明该文章做了什么/提出了什么）。\n"
+        "请为以下每篇文章生成一句简洁的中文描述（50字，直接说明该文章做了什么/提出了什么）。\n"
         "只输出编号和描述，格式严格如下，不要多余内容：\n"
         "1. 描述文字\n2. 描述文字\n...\n\n"
         f"{items}"
@@ -297,7 +297,7 @@ def ai_generate_summary_and_risk(all_articles: list[dict]) -> tuple[str, str, st
     prompt = (
         "你是光学/AR/波导领域的技术分析师。\n"
         "根据以下文章标题，用中文简短输出三部分，格式严格如下（每部分一行，冒号后直接是内容）：\n"
-        "总结: 用50字内概括这批内容涵盖的主要技术方向（逗号分隔关键主题）\n"
+        "总结: 用100字内概括这批内容涵盖的主要技术方向（逗号分隔关键主题）\n"
         "机会: 用50字内说明带来的市场或技术机会\n"
         "风险: 用50字内说明潜在挑战或风险\n\n"
         f"文章标题：{titles}"
@@ -367,24 +367,42 @@ def build_feishu_card(
 
     elements.append({"tag": "hr"})
 
-    # ── 3. 热点列表 ──────────────────────────────────
-    elements.append({
-        "tag": "markdown",
-        "content": "**🗒 热点新闻列表**",
-    })
-
-    for idx, a in enumerate(all_arts):
-        num_emoji = NUMBER_EMOJI[idx] if idx < len(NUMBER_EMOJI) else f"{idx+1}."
-        desc      = a.get("zh_desc") or a["summary"][:60] or a["title"]
-
+    # ── 3. 文献区块 ──────────────────────────────────
+    if paper_list:
         elements.append({
             "tag": "markdown",
-            "content": (
-                f"{num_emoji} **[{a['year']}] {a['title']}**\n"
-                f"{a['link']}\n"
-                f"{desc}"
-            ),
+            "content": f"**📚 文献 ·** {n_paper} 篇",
         })
+        for idx, a in enumerate(paper_list):
+            num_emoji = NUMBER_EMOJI[idx] if idx < len(NUMBER_EMOJI) else f"{idx+1}."
+            desc      = a.get("zh_desc") or a["summary"][:60] or a["title"]
+            elements.append({
+                "tag": "markdown",
+                "content": (
+                    f"{num_emoji} **[{a['year']}] {a['title']}**\n"
+                    f"{a['link']}\n"
+                    f"{desc}"
+                ),
+            })
+        elements.append({"tag": "hr"})
+
+    # ── 4. 新闻区块 ──────────────────────────────────
+    if news_list:
+        elements.append({
+            "tag": "markdown",
+            "content": f"**📰 新闻 ·** {n_news} 篇",
+        })
+        for idx, a in enumerate(news_list):
+            num_emoji = NUMBER_EMOJI[idx] if idx < len(NUMBER_EMOJI) else f"{idx+1}."
+            desc      = a.get("zh_desc") or a["summary"][:60] or a["title"]
+            elements.append({
+                "tag": "markdown",
+                "content": (
+                    f"{num_emoji} **[{a['year']}] {a['title']}**\n"
+                    f"{a['link']}\n"
+                    f"{desc}"
+                ),
+            })
 
     return {
         "msg_type": "interactive",
