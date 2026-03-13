@@ -508,8 +508,8 @@ def build_feishu_card(
         "tag": "markdown",
         "content": (
             f"**⚠️ 风险与机会**\n"
-            f"风险（50字）：{risk_text}\n"
-            f"机会（50字）：{opp_text}"
+            f"风险：{risk_text}\n"
+            f"机会：{opp_text}"
         ),
     })
 
