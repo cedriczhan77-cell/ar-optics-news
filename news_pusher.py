@@ -70,13 +70,13 @@ KEYWORDS_MUST = [
 # ── 新闻专用严格关键字（必须含其中之一才推送）──────────
 #    比学术词表更精准，避免误触电池/AI/娱乐等泛科技内容
 KEYWORDS_NEWS_STRICT = [
-    # AR / 智能眼镜 产品与公司
+    # ── AR / 智能眼镜 产品与公司 ─────────────────────
     "augmented reality", "AR glasses", "AR headset", "AR display",
     "smart glasses", "mixed reality glasses",
     "Apple Vision", "Meta Quest", "HoloLens", "Magic Leap",
     "Ray-Ban Meta", "XREAL", "Rokid", "TCL RayNeo",
     "增强现实眼镜", "智能眼镜", "头显", "近眼显示",
-    # 波导 / 光学组件
+    # ── 波导 / 光学组件 ───────────────────────────────
     "waveguide", "optical waveguide", "diffractive waveguide",
     "holographic waveguide", "光波导", "波导显示",
     "eyepiece", "目镜", "光学模组",
@@ -84,18 +84,37 @@ KEYWORDS_NEWS_STRICT = [
     "pancake lens", "pancake optics", "birdbath optics",
     "diffractive optical", "holographic optical",
     "surface relief grating", "SRG waveguide",
-    # 显示器件（必须与 AR/显示强相关，不含泛用 OLED）
     "micro display", "microLED display", "LCoS display",
     "light engine", "near-eye", "microdisplay",
     "retinal display", "retinal projection",
-    # TFLN / 光子芯片
+    # ── TFLN / 光子芯片 ───────────────────────────────
     "TFLN", "thin-film lithium niobate", "lithium niobate modulator",
     "electro-optic modulator", "photonic chip", "铌酸锂",
-    # 行业关键词
+    # ── AR 行业 ───────────────────────────────────────
     "AR industry", "AR market", "AR optics",
     "wearable display", "wearable optics",
     "optical see-through", "see-through display",
     "AR NED", "NED display",
+    # ── AI 大模型 / 技术进展 ──────────────────────────
+    "OpenAI", "ChatGPT", "GPT-5", "GPT-4",
+    "Claude", "Anthropic",
+    "Gemini", "Google DeepMind",
+    "Grok", "xAI",
+    "DeepSeek", "Mistral", "Llama",
+    "large language model", "LLM",
+    "foundation model", "multimodal model",
+    "AI model", "AI agent", "AI assistant",
+    "artificial general intelligence", "AGI",
+    "大语言模型", "基础模型", "多模态",
+    "AI 进展", "AI 突破", "人工智能",
+    # ── AI 芯片 / 算力 ────────────────────────────────
+    "NVIDIA", "GPU cluster", "AI chip",
+    "AI accelerator", "TPU", "AI inference",
+    "算力", "AI芯片", "英伟达",
+    # ── AI 应用 / 产品 ────────────────────────────────
+    "AI-powered", "generative AI", "text-to-image",
+    "text-to-video", "AI video", "Sora", "Runway",
+    "生成式AI", "AI生成", "文生图", "文生视频",
 ]
 
 KEYWORDS_EXTRA = [
