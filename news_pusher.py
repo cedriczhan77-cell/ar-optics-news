@@ -60,7 +60,7 @@ KEYWORDS_MUST = [
     "Ray-Ban Meta", "XREAL", "Rokid",
     "增强现实", "混合现实", "光学", "衍射", "全息",
     "智能眼镜", "头显",
-    "VR", "virtual reality",
+    "VR", "virtual reality","TFLN",
 ]
 
 KEYWORDS_EXTRA = [
