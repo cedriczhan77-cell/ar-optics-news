@@ -48,6 +48,10 @@ KEYWORDS_MUST = [
     "AR", "augmented reality",
     "waveguide", "光波导", "波导",
     "eyepiece", "目镜",
+    # TFLN 薄膜铌酸锂
+    "TFLN", "thin-film lithium niobate", "lithium niobate",
+    "LiNbO3", "LN modulator", "electro-optic modulator",
+    "铌酸锂", "薄膜铌酸锂", "电光调制",
     "diffractive", "holographic", "hologram", "HOE",
     "metasurface", "metalens", "超表面", "元透镜",
     "grating", "光栅",
@@ -60,7 +64,7 @@ KEYWORDS_MUST = [
     "Ray-Ban Meta", "XREAL", "Rokid",
     "增强现实", "混合现实", "光学", "衍射", "全息",
     "智能眼镜", "头显",
-    "VR", "virtual reality","TFLN",
+    "VR", "virtual reality",
 ]
 
 KEYWORDS_EXTRA = [
@@ -263,7 +267,7 @@ def ai_fill_articles(articles: list[dict]) -> None:
     )
     prompt = (
         "你是一名光学/AR领域的技术编辑。\n"
-        "请为以下每篇文章生成一句简洁的中文描述（30字，直接说明该文章做了什么/提出了什么）。\n"
+        "请为以下每篇文章生成一句简洁的中文描述（15~30字，直接说明该文章做了什么/提出了什么）。\n"
         "只输出编号和描述，格式严格如下，不要多余内容：\n"
         "1. 描述文字\n2. 描述文字\n...\n\n"
         f"{items}"
@@ -296,13 +300,13 @@ def ai_generate_summary_and_risk(all_articles: list[dict]) -> tuple[str, str, st
     titles = "、".join(a["title"] for a in all_articles)
     prompt = (
         "你是光学/AR/波导领域的技术分析师。\n"
-        "根据以下文章标题，用中文简短输出三部分，格式严格如下（每部分一行，冒号后直接是内容）：\n"
-        "总结: 用50~100字概括这批内容涵盖的主要技术方向（逗号分隔关键主题）\n"
-        "机会: 用30~50字说明带来的市场或技术机会\n"
-        "风险: 用30~50字说明潜在挑战或风险\n\n"
+        "根据以下文章标题，用中文输出三部分，格式严格如下（每部分一行，冒号后直接是内容）：\n"
+        "总结: 用80~100字概括这批内容涵盖的主要技术方向与研究进展，内容充实具体\n"
+        "风险: 用约50字说明潜在挑战或风险\n"
+        "机会: 用约50字说明带来的市场或技术机会\n\n"
         f"文章标题：{titles}"
     )
-    resp = _call_claude(prompt, max_tokens=300)
+    resp = _call_claude(prompt, max_tokens=500)
     if not resp:
         return "", "", ""
 
@@ -311,10 +315,10 @@ def ai_generate_summary_and_risk(all_articles: list[dict]) -> tuple[str, str, st
         line = line.strip()
         if line.startswith("总结:") or line.startswith("总结："):
             summary_text = line.split(":", 1)[-1].strip().lstrip("：")
-        elif line.startswith("机会:") or line.startswith("机会："):
-            opportunity = line.split(":", 1)[-1].strip().lstrip("：")
         elif line.startswith("风险:") or line.startswith("风险："):
             risk = line.split(":", 1)[-1].strip().lstrip("：")
+        elif line.startswith("机会:") or line.startswith("机会："):
+            opportunity = line.split(":", 1)[-1].strip().lstrip("：")
 
     return summary_text, opportunity, risk
 
@@ -360,8 +364,8 @@ def build_feishu_card(
         "tag": "markdown",
         "content": (
             f"**⚠️ 风险与机会**\n"
-            f"机会：{opp_text}\n"
-            f"风险：{risk_text}"
+            f"风险（50字）：{risk_text}\n"
+            f"机会（50字）：{opp_text}"
         ),
     })
 
