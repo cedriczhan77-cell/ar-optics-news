@@ -60,7 +60,7 @@ KEYWORDS_MUST = [
     "Ray-Ban Meta", "XREAL", "Rokid",
     "增强现实", "混合现实", "光学", "衍射", "全息",
     "智能眼镜", "头显",
-    "VR", "virtual reality","TFLN",
+    "VR", "virtual reality",
 ]
 
 KEYWORDS_EXTRA = [
@@ -263,7 +263,7 @@ def ai_fill_articles(articles: list[dict]) -> None:
     )
     prompt = (
         "你是一名光学/AR领域的技术编辑。\n"
-        "请为以下每篇文章生成一句简洁的中文描述（50字，直接说明该文章做了什么/提出了什么）。\n"
+        "请为以下每篇文章生成一句简洁的中文描述（15~30字，直接说明该文章做了什么/提出了什么）。\n"
         "只输出编号和描述，格式严格如下，不要多余内容：\n"
         "1. 描述文字\n2. 描述文字\n...\n\n"
         f"{items}"
@@ -297,9 +297,9 @@ def ai_generate_summary_and_risk(all_articles: list[dict]) -> tuple[str, str, st
     prompt = (
         "你是光学/AR/波导领域的技术分析师。\n"
         "根据以下文章标题，用中文简短输出三部分，格式严格如下（每部分一行，冒号后直接是内容）：\n"
-        "总结: 用100字内概括这批内容涵盖的主要技术方向（逗号分隔关键主题）\n"
-        "机会: 用50字内说明带来的市场或技术机会\n"
-        "风险: 用50字内说明潜在挑战或风险\n\n"
+        "总结: 用20~40字概括这批内容涵盖的主要技术方向（逗号分隔关键主题）\n"
+        "机会: 用15~25字说明带来的市场或技术机会\n"
+        "风险: 用15~25字说明潜在挑战或风险\n\n"
         f"文章标题：{titles}"
     )
     resp = _call_claude(prompt, max_tokens=300)
