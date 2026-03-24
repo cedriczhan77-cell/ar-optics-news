@@ -46,9 +46,11 @@ jobs:
       - name: Install Python dependencies
         run: pip install feedparser requests
 
-      # ── 6. 安装 Node.js 依赖（pptxgenjs）────────
+      # ── 6. 安装 Node.js 依赖（本地安装，确保脚本能找到）─
       - name: Install Node.js dependencies
-        run: npm install -g pptxgenjs
+        run: |
+          echo '{"name":"ar-daily","version":"1.0.0"}' > package.json
+          npm install pptxgenjs
 
       # ── 7. 运行文字日报（news_pusher.py）────────
       #    推送：飞书文字卡片（总结 + 文献 + 新闻列表）
