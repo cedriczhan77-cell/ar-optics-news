@@ -18,19 +18,19 @@ jobs:
     steps:
       # ── 1. 检出代码 ──────────────────────────────
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 1
 
       # ── 2. Python 环境 ───────────────────────────
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: "3.11"
 
       # ── 3. Node.js 环境（用于生成 PPT）──────────
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: "20"
 
