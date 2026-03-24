@@ -62,12 +62,14 @@ jobs:
         run: python news_pusher.py
 
       # ── 8. 运行图片日报（slide_pusher.py）────────
-      #    推送：Goerpixel 风格白底日报图片
+      #    推送：Goerpixel 风格白底日报图片（直接显示在飞书群组）
       - name: Generate & push image daily report
         env:
-          FEISHU_WEBHOOK:    ${{ secrets.FEISHU_WEBHOOK }}
-          FEISHU_WEBHOOK_2:  ${{ secrets.FEISHU_WEBHOOK_2 }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FEISHU_WEBHOOK:      ${{ secrets.FEISHU_WEBHOOK }}
+          FEISHU_WEBHOOK_2:    ${{ secrets.FEISHU_WEBHOOK_2 }}
+          ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
+          FEISHU_APP_ID:       ${{ secrets.FEISHU_APP_ID }}
+          FEISHU_APP_SECRET:   ${{ secrets.FEISHU_APP_SECRET }}
         run: python slide_pusher.py
 
       # ── 9. 保存两个历史文件，防止明日重复推送 ────
