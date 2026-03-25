@@ -3,7 +3,7 @@ name: AR光学 每日资讯推送
 on:
   # 每天北京时间 07:00（UTC 前一天 23:00）
   schedule:
-    - cron: "00 23 * * *"
+    - cron: "0 23 * * *"
   workflow_dispatch:
 
 permissions:
