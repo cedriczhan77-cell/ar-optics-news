@@ -9,6 +9,11 @@ on:
 permissions:
   contents: write
 
+# 同一时间只允许一个 job 运行，防止手动触发和定时触发同时执行推送两次
+concurrency:
+  group: daily-push
+  cancel-in-progress: false
+
 jobs:
   daily-push:
     runs-on: ubuntu-latest
@@ -16,19 +21,19 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Setup Python
-        uses: actions/setup-python@v5.6.0
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4.4.0
+        uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
 
       # LibreOffice: PPTX→PDF  |  poppler: PDF→图片  |  noto-cjk: 中文字体
       - name: Install system tools
